@@ -1,3 +1,5 @@
 module PeeEmTee
- 
-end
+
+greet() = print("Hello World!")
+
+end # module
