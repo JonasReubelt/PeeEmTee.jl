@@ -11,3 +11,17 @@ function high_voltages(filename)
     high_voltages
 end
 
+
+
+struct WaveSet
+    waveforms
+    v_gain
+    h_int
+    function WaveSet(filename, hv)
+        waveforms_raw = h5read(filename, "$hv/waveforms")
+        v_gain = h5read(filename, "$hv/waveform_info/v_gain")
+        h_int = h5read(filename, "$hv/waveform_info/h_int")
+        new(waveforms_raw * v_gain, v_gain, h_int)
+    end
+end
+
