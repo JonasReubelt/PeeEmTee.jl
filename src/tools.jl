@@ -46,7 +46,14 @@ end
 struct ChargeDist
     x
     y
-    
+    """
+    $(SIGNATURES)
+    constructor
+    # Arguments
+    - `charges => Vector{Float64}`: charges from which charge distribution is 
+                                    constructed
+    - `steprange => StepRangeLen`: steprange for binning of the charges
+    """
     function ChargeDist(charges, steprange::StepRangeLen)
         hist = append!(Histogram(steprange), charges)
         edges = collect(hist.edges[1])
@@ -58,5 +65,15 @@ struct ChargeDist
     
 end
 
+"""
+    $(SIGNATURES)
+    alternative constructor
+    # Arguments
+    - `charges => Vector{Float64}`: charges from which charge distribution is 
+                                    constructed
+    - `bins => Integer`: number of bins for binning of the charges
+    - `lower`: lower edge for binning of the charges; default: -1
+    - `upper`: upper edge for binning of the charges; default: 1
+    """
 ChargeDist(charges, bins::Integer; lower=-1, upper=1) = ChargeDist(charges, range(lower, upper; length=bins))
 
