@@ -42,3 +42,21 @@ function calculate_charges(waveforms, ped_min, ped_max, sig_min, sig_max)
     vec(charges);
 end
 
+
+struct ChargeDist
+    x
+    y
+    
+    function ChargeDist(charges, steprange::StepRangeLen)
+        hist = append!(Histogram(steprange), charges)
+        edges = collect(hist.edges[1])
+        x = edges .+ (edges[2] - edges[1]) / 2
+        x = x[1:end-1]
+        y = hist.weights
+        new(x, y)
+    end
+    
+end
+
+ChargeDist(charges, bins::Integer; lower=-1, upper=1) = ChargeDist(charges, range(lower, upper; length=bins))
+
