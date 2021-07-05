@@ -2,3 +2,6 @@ name = "PeeEmTee"
 uuid = "3e1e90ac-75a4-4b59-a5d4-c14230f97843"
 authors = ["Jonas Reubelt <jonas.reujon.reubelt@fau.de>"]
 version = "0.1.0"
+
+[deps]
+HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
