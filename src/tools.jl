@@ -37,8 +37,8 @@ calculates charges of waveforms of a waveset
 """
 function calculate_charges(waveforms, ped_min, ped_max, sig_min, sig_max)
     ped_sig_ratio = (ped_max - ped_min) / (sig_max - sig_min)
-    pedestal = sum(data[ped_min:ped_max, :], dims=1)
-    charges = -(sum(data[sig_min:sig_max, :], dims=1) - pedestal / ped_sig_ratio)
+    pedestal = sum(waveforms[ped_min:ped_max, :], dims=1)
+    charges = -(sum(waveforms[sig_min:sig_max, :], dims=1) - pedestal / ped_sig_ratio)
     vec(charges);
 end
 
