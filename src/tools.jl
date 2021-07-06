@@ -82,14 +82,14 @@ ChargeDist(charges, bins::Integer; lower=-1, upper=1) = ChargeDist(charges, rang
     $(SIGNATURES)
     normalized gaussian function
 """
-norm_gauss(x, p) = exp.(.-(x .- p[1]).^2/(2 .*p[2] .^ 2)) ./ sqrt.(2π) ./ p[2]
+norm_gauss(x, p) = exp.(.-(x .- p[1]).^2/(2 .* p[2] .^ 2)) ./ sqrt.(2π) ./ p[2]
 
 
 """
     $(SIGNATURES)
     gaussian function
 """
-gauss(x, p) = p[3] .* exp.(.-(x .- p[1]).^2/(2 .*p[2] .^ 2)) ./ sqrt.(2π) ./ p[2]
+gauss(x, p) = p[3] .* exp.(.-(x .- p[1]).^2/(2 .* p[2] .^ 2)) ./ sqrt.(2π) ./ p[2]
 
 
 """
@@ -99,12 +99,28 @@ gauss(x, p) = p[3] .* exp.(.-(x .- p[1]).^2/(2 .*p[2] .^ 2)) ./ sqrt.(2π) ./ p[
 function pmtresp(x, p)
     poisson = Poisson(abs(p[5]))
     n_gaussians = 10
-    pedestal = pdf(poisson, 0) .* gauss.(x, p[1], p[2])
+    pedestal = pdf(poisson, 0) .* norm_gauss(x, [p[1], p[2]])
     signal = zeros(length(x))
     for i in 1:n_gaussians
-        signal .+= pdf(poisson, i) .* gauss.(x, p[3] * i, sqrt(i) * p[4])
+        signal .+= pdf(poisson, i) .* norm_gauss(x, [p[3] .* i, sqrt(i) .* p[4]])
     end
     p[6] .* (pedestal .+ signal)
+end
+
+
+"""
+    $(SIGNATURES)
+    PMT response function with under amplified pulses modification
+"""
+function pmtresp_uap(x, p)
+    poisson = Poisson(abs(p[5]))
+    n_gaussians = 10
+    pedestal = pdf(poisson, 0) .* norm_gauss(x, [p[1], p[2]])
+    signal = zeros(length(x))
+    for i in 1:n_gaussians
+        signal .+= pdf(poisson, i) .* norm_gauss(x, [p[3] .* i, sqrt(i) .* p[4]])
+    end
+    p[6] .* (pedestal .+ signal) .+ gauss(x, [p[7], p[8], p[9]])
 end
 
 """
@@ -134,6 +150,9 @@ end
 """
     $(SIGNATURES)
     performs pre fit
+    # Arguments
+    - `chargedist => ChargeDist`: charge distribution on which pre fit is
+                                  performed
 """
 function pre_fit(chargedist::ChargeDist)
     x = chargedist.x
@@ -153,4 +172,34 @@ function pre_fit(chargedist::ChargeDist)
     fit_spe = optimize(qfunc, p0, NewtonTrustRegion())
     popt_spe = Optim.minimizer(fit_spe)
     PreFitResults(popt_ped..., popt_spe...)
+end
+
+"""
+    $(SIGNATURES)
+    performs pmt response fit
+    # Arguments
+    - `charges => ChargeDist`: charge distribution on which fit is performed
+    - `prefit_results => PreFitResults`: results from pre fit used as starting
+                                         values for fit
+"""
+function pmtresp_fit(chargedist::ChargeDist, prefit_results::PreFitResults; mod=nothing)
+    p0 = [prefit_results.μₚ,
+          prefit_results.σₚ,
+          prefit_results.μₛ,
+          prefit_results.σₛ,
+          prefit_results.Aₛ / prefit_results.Aₚ,
+          prefit_results.Aₚ + prefit_results.Aₛ]
+    if mod=="uap"
+        push!(p0, prefit_results.μₛ / 5)
+        push!(p0, prefit_results.σₛ / 5)
+        push!(p0, prefit_results.Aₛ / 5)
+        func = pmtresp_uap
+    else
+        func = pmtresp
+    end
+    qfunc = make_qfunc(func, chargedist.x, chargedist.y)
+    fit = optimize(qfunc, p0, Newton())
+    popt = Optim.minimizer(fit)
+    
+    popt
 end
