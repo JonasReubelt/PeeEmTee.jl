@@ -269,15 +269,13 @@ function calculate_transit_times(waveforms, threshold)
     n, m = size(waveforms)
     transit_times = zeros(m)
     for j in 1:m
-        transit_time = 0
         for i in 1:n
             value = waveforms[i,j]
             if value < threshold
-                transit_time = i
+                transit_times[j] = i
                 continue
             end
         end
-        transit_times[j] = transit_time
     end
     transit_times[transit_times .!= 0]
 end
