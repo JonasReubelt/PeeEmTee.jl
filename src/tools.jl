@@ -65,6 +65,39 @@ struct ChargeDist
     
 end
 
+abstract type FitResults end
+
+
+struct PreFit <: FitResults
+    μₚ
+    σₚ
+    Aₚ
+    μₛ
+    σₛ
+    Aₛ
+end
+
+struct PMTRespFit <: FitResults
+    μₚ
+    σₚ
+    μₛ
+    σₛ
+    nₚₑ
+    A 
+end
+
+struct PMTRespUapFit <: FitResults
+    μₚ
+    σₚ
+    μₛ
+    σₛ
+    nₚₑ
+    A
+    μᵤₐₚ
+    σᵤₐₚ
+    Aᵤₐₚ  
+end
+
 """
     $(SIGNATURES)
     alternative constructor
@@ -107,6 +140,10 @@ function pmtresp(x, p)
     p[6] .* (pedestal .+ signal)
 end
 
+function pmtresp(x, fit::PMTRespFit)
+    pmtresp(x, [fit.μₚ, fit.σₚ, fit.μₛ, fit.σₛ, fit.nₚₑ, fit.A])
+end
+
 
 """
     $(SIGNATURES)
@@ -123,6 +160,10 @@ function pmtresp_uap(x, p)
     p[6] .* (pedestal .+ signal) .+ gauss(x, [p[7], p[8], p[9]])
 end
 
+function pmtresp_uap(x, fit::PMTRespUapFit)
+    pmtresp_uap(x, [fit.μₚ, fit.σₚ, fit.μₛ, fit.σₛ, fit.nₚₑ, fit.A, fit.μᵤₐₚ, fit.σᵤₐₚ, fit.Aᵤₐₚ])
+end
+
 """
     $(SIGNATURES)
     quality function constructor for least square optimization
@@ -137,13 +178,26 @@ function make_qfunc(model, x, y)
 end
 
 
-struct PreFitResults
-    μₚ
-    σₚ
-    Aₚ
-    μₛ
-    σₛ
-    Aₛ
+
+
+function plot(prefit::PreFit; x=-1:0.001:1)
+    y_ped = gauss(x, [prefit.μₚ, prefit.σₚ, prefit.Aₚ])
+    y_spe = gauss(x, [prefit.μₛ, prefit.σₛ, prefit.Aₛ])
+    Plots.plot(x, y_ped, yscale=:log10, label="pedestal fit")
+    Plots.plot!(x, y_spe, label="spe fit")
+    ylims!(1, maximum(y_ped) * 1.1)
+    xlabel!("Charges [A.U.]")
+    ylabel!("counts")
+end
+
+function plot!(prefit::PreFit; x=-1:0.001:1)
+    y_ped = gauss(x, [prefit.μₚ, prefit.σₚ, prefit.Aₚ])
+    y_spe = gauss(x, [prefit.μₛ, prefit.σₛ, prefit.Aₛ])
+    Plots.plot!(x, y_ped, yscale=:log10, label="pedestal fit")
+    Plots.plot!(x, y_spe, label="spe fit")
+    ylims!(1, maximum(y_ped) * 1.1)
+    xlabel!("Charges [A.U.]")
+    ylabel!("counts")
 end
 
 
@@ -171,7 +225,7 @@ function pre_fit(chargedist::ChargeDist)
     p0 = [x_spe[mxidx_spe], 0.1, mxval_spe]
     fit_spe = optimize(qfunc, p0, NewtonTrustRegion())
     popt_spe = Optim.minimizer(fit_spe)
-    PreFitResults(popt_ped..., popt_spe...)
+    PreFit(popt_ped..., popt_spe...)
 end
 
 """
@@ -182,24 +236,48 @@ end
     - `prefit_results => PreFitResults`: results from pre fit used as starting
                                          values for fit
 """
-function pmtresp_fit(chargedist::ChargeDist, prefit_results::PreFitResults; mod=nothing)
-    p0 = [prefit_results.μₚ,
-          prefit_results.σₚ,
-          prefit_results.μₛ,
-          prefit_results.σₛ,
-          prefit_results.Aₛ / prefit_results.Aₚ,
-          prefit_results.Aₚ + prefit_results.Aₛ]
-    if mod=="uap"
-        push!(p0, prefit_results.μₛ / 5)
-        push!(p0, prefit_results.σₛ / 5)
-        push!(p0, prefit_results.Aₛ / 5)
+function pmtresp_fit(chargedist::ChargeDist, prefit::PreFit; mod=:default)
+    p0 = [prefit.μₚ,
+          prefit.σₚ,
+          prefit.μₛ,
+          prefit.σₛ,
+          prefit.Aₛ / prefit.Aₚ,
+          prefit.Aₚ + prefit.Aₛ]
+    if mod==:uap
+        push!(p0, prefit.μₛ / 5)
+        push!(p0, prefit.σₛ / 5)
+        push!(p0, prefit.Aₛ / 5)
         func = pmtresp_uap
+        ResultStruct = PMTRespUapFit
     else
         func = pmtresp
+        ResultStruct = PMTRespFit
     end
     qfunc = make_qfunc(func, chargedist.x, chargedist.y)
     fit = optimize(qfunc, p0, Newton())
     popt = Optim.minimizer(fit)
     
-    popt
+    ResultStruct(popt...)
+end
+
+function baseline_max(waveforms)
+    floor(Int32, argmin(mean(waveforms, dims=2)).I[1] * 0.75)
+end
+
+function calculate_transit_times(waveforms, threshold)
+    waveforms = waveforms .- mean(waveforms[:, 1:baseline_max(waveforms)], dims=2)
+    n, m = size(waveforms)
+    transit_times = zeros(m)
+    for j in 1:m
+        transit_time = 0
+        for i in 1:n
+            value = waveforms[i,j]
+            if value < threshold
+                transit_time = i
+                continue
+            end
+        end
+        transit_times[j] = transit_time
+    end
+    transit_times[transit_times .!= 0]
 end
