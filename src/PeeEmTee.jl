@@ -8,7 +8,7 @@ using Optim
 using Plots
 import Base
 export high_voltages, WaveSet, calculate_charges, ChargeDist, pmtresp,
-       pre_fit, gauss, pmtresp_fit, pmtresp_uap, plot, plot!, calculate_transit_times
+       pre_fit, gauss, pmtresp_fit, pmtresp_uap, plot, plot!, calculate_transit_times, bin_data
 
 include("tools.jl")
 
