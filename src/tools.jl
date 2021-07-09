@@ -182,29 +182,6 @@ function make_qfunc(model, x, y)
 end
 
 
-
-
-function plot(prefit::PreFit; x=-1:0.001:1)
-    y_ped = gauss(x, [prefit.μₚ, prefit.σₚ, prefit.Aₚ])
-    y_spe = gauss(x, [prefit.μₛ, prefit.σₛ, prefit.Aₛ])
-    Plots.plot(x, y_ped, yscale=:log10, label="pedestal fit")
-    Plots.plot!(x, y_spe, label="spe fit")
-    ylims!(1, maximum(y_ped) * 1.1)
-    xlabel!("Charges [A.U.]")
-    ylabel!("counts")
-end
-
-function plot!(prefit::PreFit; x=-1:0.001:1)
-    y_ped = gauss(x, [prefit.μₚ, prefit.σₚ, prefit.Aₚ])
-    y_spe = gauss(x, [prefit.μₛ, prefit.σₛ, prefit.Aₛ])
-    Plots.plot!(x, y_ped, yscale=:log10, label="pedestal fit")
-    Plots.plot!(x, y_spe, label="spe fit")
-    ylims!(1, maximum(y_ped) * 1.1)
-    xlabel!("Charges [A.U.]")
-    ylabel!("counts")
-end
-
-
 """
     $(SIGNATURES)
     performs pre fit
