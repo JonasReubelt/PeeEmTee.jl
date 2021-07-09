@@ -68,6 +68,20 @@ struct ChargeDist
     end
     
 end
+"""
+    $(SIGNATURES)
+    alternative constructor
+    # Arguments
+    - `charges => Vector{Float64}`: charges from which charge distribution is 
+                                    constructed
+    - `bins => Integer`: number of bins for binning of the charges
+    - `lower`: lower edge for binning of the charges; default: -1
+    - `upper`: upper edge for binning of the charges; default: 1
+    """
+ChargeDist(charges, bins::Integer; lower=-1, upper=1) = ChargeDist(charges, range(lower, upper; length=bins))
+
+
+"""
 
 abstract type FitResults end
 
@@ -102,20 +116,7 @@ struct PMTRespUapFit <: FitResults
     Aᵤₐₚ  
 end
 
-"""
-    $(SIGNATURES)
-    alternative constructor
-    # Arguments
-    - `charges => Vector{Float64}`: charges from which charge distribution is 
-                                    constructed
-    - `bins => Integer`: number of bins for binning of the charges
-    - `lower`: lower edge for binning of the charges; default: -1
-    - `upper`: upper edge for binning of the charges; default: 1
-    """
-ChargeDist(charges, bins::Integer; lower=-1, upper=1) = ChargeDist(charges, range(lower, upper; length=bins))
 
-
-"""
     $(SIGNATURES)
     normalized gaussian function
 """
