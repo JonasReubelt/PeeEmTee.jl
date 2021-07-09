@@ -21,7 +21,7 @@ struct WaveSet
         waveforms_raw = h5read(filename, "$hv/waveforms")
         v_gain = h5read(filename, "$hv/waveform_info/v_gain")
         h_int = h5read(filename, "$hv/waveform_info/h_int")
-        new(waveforms_raw * v_gain, v_gain, h_int)
+        new(waveforms_raw .* v_gain, v_gain, h_int)
     end
 end
 
@@ -269,15 +269,15 @@ function baseline_max(waveforms)
 end
 
 function calculate_transit_times(waveforms, threshold)
-    waveforms = waveforms .- mean(waveforms[:, 1:baseline_max(waveforms)], dims=2)
+    waveforms = waveforms .- mean(waveforms[1:baseline_max(waveforms), :], dims=1)
     n, m = size(waveforms)
     transit_times = zeros(m)
     for j in 1:m
         for i in 1:n
             value = waveforms[i,j]
             if value < threshold
-                transit_times[j] = i
-                continue
+                transit_times[j] = i - 1
+                break
             end
         end
     end
