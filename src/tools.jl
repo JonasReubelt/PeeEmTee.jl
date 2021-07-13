@@ -149,6 +149,9 @@ function pmtresp(x, fit::PMTRespFit)
     pmtresp(x, [fit.μₚ, fit.σₚ, fit.μₛ, fit.σₛ, fit.nₚₑ, fit.A])
 end
 
+function foo(x)
+    5x
+end
 
 """
     $(SIGNATURES)
@@ -175,6 +178,10 @@ function baseline_max(waveforms)
     floor(Int32, argmin(mean(waveforms, dims=2)).I[1] * 0.75)
 end
 
+function subtract_baseline(waveforms)
+    waveforms .- mean(waveforms[1:baseline_max(waveforms), :], dims=1)
+end
+
 function calculate_transit_times(waveforms, threshold)
     waveforms = waveforms .- mean(waveforms[1:baseline_max(waveforms), :], dims=1)
     n, m = size(waveforms)
@@ -189,4 +196,27 @@ function calculate_transit_times(waveforms, threshold)
         end
     end
     transit_times[transit_times .!= 0]
+end
+
+
+function simulate_charges(nₚₑ, N)
+    charges = Float64[]
+    for i in 1:N
+        pes = rand(Poisson(nₚₑ))
+        gaussian = Normal(0., 1e5)
+        if pes == 0
+            push!(charges, rand(gaussian))
+        else
+            charge = 0
+            for i in 1:pes
+                e = rand(Poisson(7))
+                for i in 1:9
+                    e = rand(Poisson(e*4.3))
+                end
+                charge += e
+            end
+            push!(charges, charge + rand(gaussian))
+        end
+    end
+    charges
 end
