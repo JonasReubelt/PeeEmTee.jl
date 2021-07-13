@@ -81,7 +81,7 @@ end
 ChargeDist(charges, bins::Integer; lower=-1, upper=1) = ChargeDist(charges, range(lower, upper; length=bins))
 
 
-"""
+
 
 abstract type FitResults end
 
@@ -116,7 +116,7 @@ struct PMTRespUapFit <: FitResults
     Aᵤₐₚ  
 end
 
-
+"""
     $(SIGNATURES)
     normalized gaussian function
 """
