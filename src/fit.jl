@@ -22,19 +22,21 @@ end
 function pre_fit(chargedist::ChargeDist)
     x = chargedist.x
     y = chargedist.y
-    qfunc = make_qfunc(gauss, x, y)
+    qfunc_ped = make_qfunc(gauss, x, y)
     mxval_ped, mxidx_ped = findmax(y)
-    p0 = [x[mxidx_ped], 0.01, mxval_ped]
-    fit_ped = optimize(qfunc, p0, NewtonTrustRegion())
+    p0_ped = [x[mxidx_ped], 0.01, mxval_ped]
+    fit_ped = optimize(qfunc_ped, p0_ped, NewtonTrustRegion())
     popt_ped = Optim.minimizer(fit_ped)
-    
-    mask = (x .> popt_ped[1] + 5 * popt_ped[2])
+    mask = (x .> (popt_ped[1] + 3 * popt_ped[2]))
     x_spe = x[mask]
     y_spe = y[mask]
-    qfunc = make_qfunc(gauss, x_spe, y_spe)
     mxval_spe, mxidx_spe = findmax(y_spe)
-    p0 = [x_spe[mxidx_spe], 0.1, mxval_spe]
-    fit_spe = optimize(qfunc, p0, NewtonTrustRegion())
+    mask = (x_spe .< x_spe[mxidx_spe] * 2)
+    x_spe = x_spe[mask]
+    y_spe = y_spe[mask]
+    qfunc_spe = make_qfunc(gauss, x_spe, y_spe)
+    p0_spe = [x_spe[mxidx_spe], 0.1, mxval_spe]
+    fit_spe = optimize(qfunc_spe, p0_spe, NewtonTrustRegion())
     popt_spe = Optim.minimizer(fit_spe)
     PreFit(popt_ped..., popt_spe...)
 end
