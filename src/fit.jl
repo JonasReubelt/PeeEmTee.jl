@@ -54,7 +54,7 @@ function pmtresp_fit(chargedist::ChargeDist, prefit::PreFit; mod=:default)
           prefit.σₛ,
           prefit.Aₛ / prefit.Aₚ,
           prefit.Aₚ + prefit.Aₛ]
-    if mod==:uap
+    if mod == :uap
         push!(p0, prefit.μₛ / 5)
         push!(p0, prefit.σₛ / 5)
         push!(p0, prefit.Aₛ / 5)

@@ -149,10 +149,6 @@ function pmtresp(x, fit::PMTRespFit)
     pmtresp(x, [fit.μₚ, fit.σₚ, fit.μₛ, fit.σₛ, fit.nₚₑ, fit.A])
 end
 
-function foo(x)
-    5x
-end
-
 """
     $(SIGNATURES)
     PMT response function with under amplified pulses modification
@@ -173,16 +169,39 @@ function pmtresp_uap(x, fit::PMTRespUapFit)
 end
 
 
-
-function baseline_max(waveforms)
+"""
+    $(SIGNATURES)
+    calculates maximum for baseline calculation of a set of waveforms
+    # Arguments
+    - `waveforms => Matrix{Float64}`: set of waveforms
+"""
+function baseline_max(waveforms::Matrix{Float64})
     floor(Int32, argmin(mean(waveforms, dims=2)).I[1] * 0.75)
 end
 
-function subtract_baseline(waveforms)
-    waveforms .- mean(waveforms[1:baseline_max(waveforms), :], dims=1)
+"""
+    $(SIGNATURES)
+    subtracts baseline from a set of waveforms, i.e. sets baseline to 0
+    # Arguments
+    - `waveforms => Matrix{Float64}`: set of waveforms
+    - `baseline_range => Tuple`: range in which mean of baseline is calculated
+                                 (default: nothing => baseline_max is used to calculate range)
+"""
+function subtract_baseline(waveforms::Matrix{Float64}; baseline_range=nothing)
+    if baseline_range==nothing
+        baseline_range = (1, baseline_max(waveforms))
+    end
+    waveforms .- mean(waveforms[baseline_range[1]:baseline_range[2], :], dims=1)
 end
 
-function calculate_transit_times(waveforms, threshold)
+"""
+    $(SIGNATURES)
+    calculates transit times of a set of waveforms
+    # Arguments
+    - `waveforms => Matrix{Float64}`: set of waveforms
+    - `threshold`: first pass of threshold => transit time
+"""
+function calculate_transit_times(waveforms::Matrix{Float64}, threshold)
     waveforms = waveforms .- mean(waveforms[1:baseline_max(waveforms), :], dims=1)
     n, m = size(waveforms)
     transit_times = zeros(m)
@@ -198,20 +217,33 @@ function calculate_transit_times(waveforms, threshold)
     transit_times[transit_times .!= 0]
 end
 
-
-function simulate_charges(nₚₑ, N)
+"""
+    $(SIGNATURES)
+    simulations PMT charge spectrum with Poisson distributed
+    secondary emission coefficients at each dynode
+    # Arguments
+    - `nₚₑ`: mean number of photoelectrons
+    - `N`: number of simulated charges
+    - `σₚ`: Gaussian sigma of pedestal (default: 1e5)
+    - `secs`: secondary emission coefficients
+              (default: (7, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5))
+"""
+function simulate_charges(nₚₑ, N;
+                          σₚ=1e5, 
+                          secs=(7, 4.5, 4.5, 4.5, 4.5,
+                                4.5, 4.5, 4.5, 4.5, 4.5))
     charges = Float64[]
     for i in 1:N
         pes = rand(Poisson(nₚₑ))
-        gaussian = Normal(0., 1e5)
+        gaussian = Normal(0., σₚ)
         if pes == 0
             push!(charges, rand(gaussian))
         else
             charge = 0
             for i in 1:pes
-                e = rand(Poisson(7))
-                for i in 1:9
-                    e = rand(Poisson(e*4.3))
+                e = rand(Poisson(secs[1]))
+                for i in 2:10
+                    e = rand(Poisson(e * secs[i]))
                 end
                 charge += e
             end
@@ -220,3 +252,4 @@ function simulate_charges(nₚₑ, N)
     end
     charges
 end
+

@@ -1,6 +1,5 @@
 
-@recipe function f(prefit::PreFit; labels=("pedestal", "spe"))
-    xs=-.2:0.001:1
+@recipe function f(prefit::PreFit, xs; labels=("pedestal", "spe"))
     xguide := "charge [A.U.]"
     yguide := "counts"
     yscale := :log10
@@ -17,8 +16,7 @@
     end
 end
 
-@recipe function f(pmtresp::PMTRespFit)
-    xs=-.2:0.001:1
+@recipe function f(pmtresp::PMTRespFit, xs)
     xguide := "charge [A.U.]"
     yguide := "counts"
     yscale := :log10
@@ -31,8 +29,7 @@ end
     end
 end
 
-@recipe function f(pmtresp::PMTRespUapFit)
-    xs=-.2:0.001:1
+@recipe function f(pmtresp::PMTRespUapFit, xs)
     xguide := "charge [A.U.]"
     yguide := "counts"
     yscale := :log10
