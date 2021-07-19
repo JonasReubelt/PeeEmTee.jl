@@ -78,7 +78,7 @@ end
     - `lower`: lower edge for binning of the charges; default: -1
     - `upper`: upper edge for binning of the charges; default: 1
     """
-ChargeDist(charges, bins::Integer; lower=-1, upper=1) = ChargeDist(charges, range(lower, upper; length=bins))
+ChargeDist(charges, bins::Integer; lower=-1, upper=1) = ChargeDist(charges, range(lower, upper; length=bins+1))
 
 
 
