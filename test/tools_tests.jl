@@ -19,3 +19,8 @@ end
     @test waveset.waveforms == a * waveset.v_gain
     @test waveset.h_int == 1.0
 end
+
+@testset "calculate_charges" begin
+    a = [[0, 1, -45, -53, 0, -1] [-5, 3, -145, -253, 3, -5] [0, 0, -44, -12, -1, 1]]
+    @test calculate_charges(a, 1, 2, 3, 4) == [99, 396, 56]
+end
