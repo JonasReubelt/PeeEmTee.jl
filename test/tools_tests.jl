@@ -24,3 +24,8 @@ end
     a = [[0, 1, -45, -53, 0, -1] [-5, 3, -145, -253, 3, -5] [0, 0, -44, -12, -1, 1]]
     @test calculate_charges(a, 1, 2, 3, 4) == [99, 396, 56]
 end
+
+@testset "calculate_transit_times" begin
+    a = [[0., -1., 1., -53., 0., 1.] [-5., 3., -14., -253., 143., 3.] [100., 102., 85., -9., -1., -15.]]
+    @test calculate_transit_times(a, -10.) == [3, 3, 2]
+end
