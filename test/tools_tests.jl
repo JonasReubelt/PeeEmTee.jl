@@ -46,3 +46,7 @@ end
     @test chargedist.x == [-0.75, -0.25, 0.25, 0.75]
     @test chargedist.y == [1, 1, 1, 1]
 end
+
+@testset "norm_gauss()" begin
+    @test norm_gauss(0, [0, 1]) == 0.3989422804014327
+end

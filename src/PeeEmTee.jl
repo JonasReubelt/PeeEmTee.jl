@@ -8,7 +8,7 @@ using Optim
 using RecipesBase
 import Base
 export high_voltages, WaveSet, calculate_charges, ChargeDist, pmtresp,
-       pre_fit, gauss, pmtresp_fit, pmtresp_uap, plot, plot!,
+       pre_fit, gauss, norm_gauss, pmtresp_fit, pmtresp_uap, plot, plot!,
        calculate_transit_times, bin_data, subtract_baseline, simulate_charges
 
 include("tools.jl")
