@@ -5,7 +5,7 @@ reads the high voltages of the wavesets saved in the hdf5 file
 - `filename`: filename of h5 file
 """
 function high_voltages(filename)
-    h5 = h5open(filename)
+    h5 = h5open(filename, "r")
     high_voltages = keys(h5)
     close(h5)
     high_voltages

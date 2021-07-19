@@ -5,7 +5,6 @@ using DocStringExtensions
 using StatsBase
 using Distributions
 using Optim
-using Plots
 using RecipesBase
 import Base
 export high_voltages, WaveSet, calculate_charges, ChargeDist, pmtresp,
