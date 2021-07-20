@@ -50,3 +50,7 @@ end
 @testset "norm_gauss()" begin
     @test norm_gauss(0, [0, 1]) == 0.3989422804014327
 end
+
+@testset "gauss()" begin
+    @test gauss(0, [0, 1, 10]) == 3.9894228040143274
+end
