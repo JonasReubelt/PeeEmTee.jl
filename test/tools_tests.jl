@@ -54,3 +54,8 @@ end
 @testset "gauss()" begin
     @test gauss(0, [0, 1, 10]) == 3.9894228040143274
 end
+
+@testset "baseline_max" begin
+    a = [[0., 0., -1., 0., 0.] [0., 0., -2., 0., -1.] [0., 1., -3., -2., -1.]]
+    @test baseline_max(a) == 2
+end
