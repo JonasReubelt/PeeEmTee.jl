@@ -1,5 +1,6 @@
 using PeeEmTee
 using Test
+using StatsBase
 
 const pmt_data = joinpath(@__DIR__, "data", "pmt_data.h5")
 
@@ -86,4 +87,12 @@ end
     prffit = PMTRespUapFit(params...)
     @test pmtresp_uap(xs, prffit) == [308.25941556084206,
                                       16.40805075212658]
+end
+
+@testset "simulate_charges()" begin
+    secs = (7, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5)
+    nₚₑ = 0.1
+    @test isapprox(mean(simulate_charges(nₚₑ, 100000; secs=secs)),
+                   prod(secs) * nₚₑ;
+                   rtol=0.01) 
 end
