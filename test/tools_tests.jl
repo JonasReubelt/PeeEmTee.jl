@@ -67,3 +67,9 @@ end
     @test subtract_baseline(a) == a_res1
     @test subtract_baseline(a; baseline_range=(1, 1)) == a_res2
 end
+
+@testset "pmtresp()" begin
+    @test pmtresp([0, 0.3],
+                  [0, 0.05, 0.3, 0.2, 0.1, 100.]) == [727.8832805768451,
+                                                      18.4164040244264]
+end
