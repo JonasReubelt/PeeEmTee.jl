@@ -94,5 +94,5 @@ end
     nₚₑ = 0.1
     @test isapprox(mean(simulate_charges(nₚₑ, 100000; secs=secs)),
                    prod(secs) * nₚₑ;
-                   rtol=0.01) 
+                   rtol=0.05) 
 end
