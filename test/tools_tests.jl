@@ -69,17 +69,21 @@ end
 end
 
 @testset "pmtresp()" begin
-    @test pmtresp([0, 0.3],
-                  [0, 0.05, 0.3, 0.2, 0.1, 100.]) == [727.8832805768451,
-                                                      18.4164040244264]
-    prffit = PMTRespFit(0, 0.05, 0.3, 0.2, 0.1, 100.)
-    @test pmtresp([0, 0.3],
-                  prffit) == [727.8832805768451,
-                              18.4164040244264]
+    xs = [0, 0.3]
+    params = [0, 0.05, 0.3, 0.2, 0.1, 100.]
+    @test pmtresp(xs, params) == [727.8832805768451,
+                                  18.4164040244264]
+    prffit = PMTRespFit(params...)
+    @test pmtresp(xs, prffit) == [727.8832805768451,
+                                  18.4164040244264]
 end
 
-@testset "pmtresp()" begin
-    @test pmtresp([0, 0.3],
-                  [0, 0.05, 0.3, 0.2, 0.1, 100.]) == [727.8832805768451,
-                                                      18.4164040244264]
+@testset "pmtresp_uap()" begin
+    xs = [0.1, 0.2]
+    params = [0, 0.05, 0.3, 0.2, 0.1, 100., 0.1, 0.02, 10.]
+    @test pmtresp_uap(xs, params) == [308.25941556084206,
+                                      16.40805075212658]
+    prffit = PMTRespUapFit(params...)
+    @test pmtresp_uap(xs, prffit) == [308.25941556084206,
+                                      16.40805075212658]
 end
