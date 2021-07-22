@@ -220,6 +220,32 @@ end
 
 """
     $(SIGNATURES)
+    shifts waveforms by its minimum and calculates mean waveform
+    # Arguments
+    - `waveforms => Matrix{Float64}`: set of waveforms 
+"""
+function mean_waveform(waveforms::Matrix{Float64})
+    a, b = size(waveforms)
+    shifted_waveforms = Matrix{Float64}(undef, a, b)
+    for j in 1:b
+        minval, minidx = findmin(waveforms[:, j])
+        for i in 1:a
+            shift = floor(Int32, a/2)
+            shifted_i = i - minidx + shift
+            if shifted_i > a
+                shifted_waveforms[shifted_i - a, j] = waveforms[i, j]
+            elseif shifted_i < 1
+                shifted_waveforms[shifted_i + a, j] = waveforms[i, j]
+            else
+                shifted_waveforms[shifted_i, j] = waveforms[i, j]
+            end
+        end
+    end
+    vec(mean(shifted_waveforms, dims=2))
+end
+
+"""
+    $(SIGNATURES)
     simulations PMT charge spectrum with Poisson distributed
     secondary emission coefficients at each dynode
     # Arguments

@@ -89,6 +89,11 @@ end
                                       16.40805075212658]
 end
 
+@testset "mean_waveform()" begin
+    a = [[0., 0., -1., 0., 0., 0.] [0., 0., 0., -1., 0., 0.] [0., -1., 0., 0., 0., 0.]]
+    @test mean_waveform(a) == [0., 0., -1., 0., 0., 0.]
+end
+
 @testset "simulate_charges()" begin
     secs = (7, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5)
     nₚₑ = 0.1
