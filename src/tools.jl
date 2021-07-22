@@ -54,7 +54,9 @@ end
 struct ChargeDist
     x
     y
-    """
+end
+
+"""
     $(SIGNATURES)
     constructor
     # Arguments
@@ -64,10 +66,9 @@ struct ChargeDist
     """
     function ChargeDist(charges, steprange::StepRangeLen)
         x, y = bin_data(charges, steprange)
-        new(x, y)
+        ChargeDist(x, y)
     end
-    
-end
+
 """
     $(SIGNATURES)
     alternative constructor
