@@ -4,6 +4,7 @@ authors = ["Jonas Reubelt <jonas.reujon.reubelt@fau.de>"]
 version = "0.1.0"
 
 [deps]
+DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
