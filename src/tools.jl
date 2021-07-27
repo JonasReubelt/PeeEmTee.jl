@@ -64,10 +64,10 @@ end
                                     constructed
     - `steprange => StepRangeLen`: steprange for binning of the charges
     """
-    function ChargeDist(charges, steprange::StepRangeLen)
-        x, y = bin_data(charges, steprange)
-        ChargeDist(x, y)
-    end
+function ChargeDist(charges, steprange::StepRangeLen)
+    x, y = bin_data(charges, steprange)
+    ChargeDist(x, y)
+end
 
 """
     $(SIGNATURES)
